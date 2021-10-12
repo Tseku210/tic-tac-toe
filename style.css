@@ -1,0 +1,46 @@
+body {
+    font-family: sans-serif;
+}
+#container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0;
+}
+#gameboard {
+    margin-top: 50px;
+    background-color: black;
+    width: 450px;
+    height: 450px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.nodes {
+    outline: 1px solid white;
+    width: 150px;
+    height: 150px;
+    transition: all .5s;
+    text-align: center;
+    font-size: 7rem;
+    color: white;
+}
+.nodes:hover {
+    background-color: gold;
+}
+#header {
+    width: 100vw;
+    height: 90px;
+    text-align: center;
+    border-bottom: 2px solid black;
+}
+#header h1 {
+    text-transform: uppercase;
+}
+#message {
+    margin-top: 20px;
+    margin-bottom: -20px;
+    font-weight: 800;
+    font-size: 2rem;
+}

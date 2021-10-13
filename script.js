@@ -7,7 +7,7 @@ const gameBoard = (() => {
     
     const setField = (i, player) => {
         _board[i] = player.getSymbol();
-        console.log(_board)
+        console.log(_board);
     }
 
     const resetBoard = () => {
@@ -25,8 +25,9 @@ const displayController = (() => {
     _fields.forEach(field => {
         field.addEventListener("click", () => {
             // if (gameController.isOver() || field.textContent !== "") return;
-            gameController.playRound(field.dataset.i)
-            updateGameBoard()
+            if (field.textContent !== "" || gameController.getIsOver()) return;
+            gameController.playRound(field.dataset.i, gameController.getCurrentPlayer());
+            updateGameBoard();
         })
     })
     const displayMessage = (message) => {
@@ -52,11 +53,21 @@ const Player = (symbol) => {
 const gameController = (() => {
     const _player1 = Player("x");
     const _player2 = Player("o");
-    round = 1
-    let currentPlayer = _player1;
+    let round = 1;
+    let isOver = false;
 
-    const playRound = (fieldIndex) => {
-        gameBoard.setField(fieldIndex, getCurrentPlayer())
+    const playRound = (fieldIndex, player) => {
+        gameBoard.setField(fieldIndex, getCurrentPlayer());
+        if (hasWon(player)){
+            displayController.displayMessage(`Player ${player.getSymbol().toUpperCase()} has won!`);
+            isOver = true;
+            return;
+        }
+        if (round === 9){
+            displayController.displayMessage("Draw!");
+            isOver = true;
+            return;
+        }
         round++;
         displayController.displayMessage(`Player ${getCurrentPlayer().getSymbol().toUpperCase()}'s turn`)
     }
@@ -65,40 +76,81 @@ const gameController = (() => {
         return round % 2 === 1 ? _player1 : _player2;
     }
 
-    const changePlayerTurn = () => {
-        if (currentPlayer === _player1){
-            currentPlayer = _player2;
-        } else if (currentPlayer === _player2){
-            currentPlayer = _player1;
-        }
-    };
 
-    const currentPlayerSymbol = () => {
-        currentPlayer.getSymbol();
-    }
-
-    const isValid = (field) => {
-        if (field.textContent === ""){
-            true;
+    const hasWon = (player) => {
+        if (rowWin(player) || columnWin(player) || diagonalWin(player)){
+            isOver = true;
+            displayController.displayMessage(`Player ${player.getSymbol().toUpperCase()} has won the game!`);
+            return true;
         } else {
-            false;
+            return false;
         }
     }
+    // [0, 1, 2,
+    //  3, 4, 5,
+    //  6, 7, 8]
+    const rowWin = (player) => {
+        const symbol = player.getSymbol();
 
-    // const hasWon = () => {
-    //     if (rowWin(player) || columnWin(player) || diagonalWin(player)){
-    //         return player;
-    //     } else if (rowWin()) {
+        for (let i = 0; i < 9; i = i + 3){
+            let count = 0;
+            for (let j = i; j <= i + 2; j++){
+                if (gameBoard.getField(j) === symbol){
+                    count++;
+                }
+            }
+            if (count === 3){
+                return true;
+            }
+        }
+        return false;
+    }
 
-    //     }
-    // }
+    const columnWin = (player) => {
+        const symbol = player.getSymbol();
 
+        for (let i = 0; i < 3; i++){
+            let count = 0;
+            for (let j = i; j <= i + 6; j = j + 3){
+                if (gameBoard.getField(j) === symbol){
+                    count++;
+                }
+            }
+            if (count === 3){
+                return true;
+            }
+        }
+        return false;
+    }
+    // [0, 1, 2,
+    //  3, 4, 5,
+    //  6, 7, 8]
+    const diagonalWin = (player) => {
+        const symbol = player.getSymbol();
+        const winCond = [[0, 4, 8], [2, 4, 6]];
+
+        for (let i = 0; i < 2; i++){
+            let iswin = true;
+            for (let j = 0; j < 3; j++){
+                let index = winCond[i][j]
+                if (gameBoard.getField(index) !== symbol){
+                    iswin = false;
+                }
+            }
+            if (iswin === true){
+                return true;
+            }
+        }
+        return false;
+    }
+    const getIsOver = () => {
+        return isOver;
+    }
 
     return {
-        changePlayerTurn,
-        isValid,
-        currentPlayerSymbol,
-        currentPlayer,
-        playRound
+        hasWon,
+        playRound,
+        getIsOver,
+        getCurrentPlayer
     };
 })();
